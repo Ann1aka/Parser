@@ -2,11 +2,20 @@
 
 Description of project:
 
-Build
 
-Test
 
-Run
+Run and Build:
+```
+    py parser.py
+```
+
+Run tests
+```
+    py -m unittest test_parser.py
+```
 
 
 Description of the softwarearchitecture
+
+
+UML diagram:
