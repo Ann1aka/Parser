@@ -1,6 +1,7 @@
 # Parser
 
 Description of project:
+In this project, I have built a parser that reads the rows in a csv-file and parses them to an array of arrays which are inserted to a list of dictionaries with key-value pairings. Lastly it writes the key-value pairings to a json file.
 
 ---------------------------------------------------
 
