@@ -218,21 +218,48 @@ class TestParser(unittest.TestCase): #Inherit from unittest.TestCase
 
 #-----------------------------------------------------------------
 
-    def test_my_split_comma_in_quoted_fields_(self):
+    def test_my_split_quoted_and_empty_fields(self):
+        example_string = "John,\"Johnny\",28,"",engineer"
+        expected = ["John","Johnny", "28","", "engineer"]
+        result = parser.my_split(example_string)
+        self.assertEqual(expected, result)
+
+    def test_my_split_comma_in_quoted_fields(self):
         example_string = "\"Smith, John\",28,engineer"
         expected = ["Smith, John", "28", "engineer"]
         result = parser.my_split(example_string)
         self.assertEqual(expected, result)
 
+    def test_my_split_multiple_comma_in_quoted_fields(self):
+        example_string = "\"Smith, John, 28\",engineer"
+        expected = ["Smith, John, 28", "engineer"]
+        result = parser.my_split(example_string)
+        self.assertEqual(expected, result)
 
-    # def test_my_split_quoted_fields_(self):
-    #     example_string = "\"Johnny boy\",28,engineer"
-    #     expected = ["\"Johnny boy\"", "28", "engineer"]
-    #     result = parser.my_split(example_string)
-    #     self.assertEqual(expected, result)
+    def test_my_split_double_quoted_fields(self):
+        example_string = 'aa,"b""bb",cc'
+        expected = ['aa','b"bb','cc']
+        result = parser.my_split(example_string)
+        self.assertEqual(expected, result)
 
+    def test_my_split_tripple_quoted_fields(self):
+        example_string = 'aa,"""b,b""",cc'
+        expected = ['aa','"b,b"','cc']
+        result = parser.my_split(example_string)
+        self.assertEqual(expected, result)
 
+    def test_my_split_quotation_at_the_end(self):
+        example_string = 'aa,"""k"'
+        expected = ['aa','"k']
+        result = parser.my_split(example_string)
+        self.assertEqual(expected, result)
 
+    def test_my_split_newline_in_quoted_field(self):
+        example_string = 'aa,"b\nb",cc'
+        expected = ['aa','b\nb','cc']
+        result = parser.my_split(example_string)
+        self.assertEqual(expected, result)
+    
 
 if __name__ == '__main__':
     unittest.main()
