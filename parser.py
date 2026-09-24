@@ -20,7 +20,6 @@ def my_split(line):
     current_field ="" #accumulator
     i = 0
     while i < len(line):
-
         if outer_quotations == False:
             if line[i] ==",": #normal comma separator (not in quoted field)
                 result_list.append(current_field.strip(",")) #remove comma and put it into result list
@@ -54,6 +53,8 @@ def read_file(file_path, encoding='utf-8'):
     Arg:
         file_path: file path to the file that is to be read
         encoding: the text encoding to decode file with
+    Return:
+        The file's contents as one long string
     """
     with open (file_path, encoding = encoding) as f:
         return f.read() 
@@ -61,7 +62,7 @@ def read_file(file_path, encoding='utf-8'):
 
 def parse_header(header_string):
     """
-    Parses one CSV-header and outputs an array of strings
+    Parses one CSV-header and outputs a list of strings
     Arg:
         header_string: A header which is a string
     Returns:
@@ -80,29 +81,29 @@ def parse_csv_line(CSV_line, header=None):
     Parses one line in the CSV file.
     Args:
         CSV_line: a string which is a line in the CSV file
-        header: a string array which is optionally given
+        header: a list of stirngs which is optionally given
     Returns:
-        One dictionary of JSON objects
+        One dictionary with the header as keys and row elements from the csv file as values
     """
-    row_items = my_split(CSV_line.rstrip("\r\n")) #array of strings
+    row_items = my_split(CSV_line.rstrip("\r\n")) #list of strings
     header_keys = []
 
 
     if header != None: #There is a header
-        header_keys = header #array of strings, e.g. ["name", "age","role"]
-        json_objects = {} #empty dictionary
+        header_keys = header #list of strings, e.g. ["name", "age","role"]
+        dictionary = {} #empty dictionary
 
         if len(header_keys) != len(row_items):
             raise ValueError("Unequal number of items in header and rows")
         else:
             for i in range(len(header_keys)):
-                json_objects[header_keys[i]] = row_items[i]
-            return json_objects
+                dictionary[header_keys[i]] = row_items[i]
+            return dictionary
     else: #There is no header. Make keys: 0,1,2,...
-        json_objects = {} #empty dictionary
+        dictionary = {} #empty dictionary
         for i in range(len(row_items)):
-            json_objects[i] = row_items[i]
-        return json_objects
+            dictionary[i] = row_items[i]
+        return dictionary
 
 
 def parse_csv(file_path, encoding="utf-8"):
@@ -114,19 +115,20 @@ def parse_csv(file_path, encoding="utf-8"):
     Returns:
         A list of dictionaries
     """
-    array_of_dict = []
+    list_of_dict = []
 
-    lines = read_file(file_path, encoding).splitlines() #read lines in file and return a list of lines with no additional line breaks. Splits blindly on newlines
+    lines = read_file(file_path, encoding).splitlines() #read lines in file and return a string list of lines with no additional line breaks. Splits blindly on newlines
     if lines == []: #check if string is empty
-        return array_of_dict
+        return list_of_dict
 
-    first_line = parse_header(lines[0]) #parse the header (first line)
-    for line in lines[1:]: #parse the rest of the lines
-        if line == "":
-            continue
-        parsed = parse_csv_line(line, first_line)
-        array_of_dict.append(parsed)
-    return array_of_dict
+    else:
+        first_line = parse_header(lines[0]) #parse the header (first line)
+        for line in lines[1:]: #parse the rest of the lines
+            if line == "": #skip empty lines
+                continue
+            parsed = parse_csv_line(line, first_line)
+            list_of_dict.append(parsed)
+        return list_of_dict
         
 
 

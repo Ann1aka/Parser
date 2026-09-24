@@ -172,6 +172,20 @@ class TestParser(unittest.TestCase): #Inherit from unittest.TestCase
         self.assertEqual(written_data, [{"name": "Åge Sæby", "email": "as@gmail.com", "department": "Ingeniør"}])
         self.assertEqual(result, csv_path.replace(".csv", ".json"))
 
+    def test_write_json_file_empty_file(self):
+        with tempfile.TemporaryDirectory() as tmpdir:
+            csv_path = os.path.join(tmpdir, "test.csv")
+            with open(csv_path, "w", encoding="utf-8") as f:
+                f.write("")
+
+            result = parser.write_json_file(csv_path)
+
+            with open(result, encoding="utf-8") as f:
+                written_data = json.load(f)
+
+        self.assertEqual(written_data, [])
+        self.assertEqual(result, csv_path.replace(".csv", ".json"))
+
 #---------------------------------------------
 
 #Test cases for parse_header
@@ -185,7 +199,7 @@ class TestParser(unittest.TestCase): #Inherit from unittest.TestCase
 
     def test_parse_header_empty_header(self):
         header = "" #Header that is an empty string
-        expected = [""] #an array with an empty string.
+        expected = [""] #a list with an empty string.
         result = parser.parse_header(header)
         self.assertEqual(expected, result)
 
@@ -335,9 +349,6 @@ class TestParser(unittest.TestCase): #Inherit from unittest.TestCase
         expected = "æøå\n"
 
         self.assertEqual(expected, result)
-
-
-
 
 
 
