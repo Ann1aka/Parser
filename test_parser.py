@@ -216,23 +216,25 @@ class TestParser(unittest.TestCase): #Inherit from unittest.TestCase
         expected = {'name': 'a', 'mail': 'a@email', 'dept': 'engineering', 'role': 'engineer'}
         self.assertEqual(expected,result)
 
+    def test_parse_csv_line_empty_header(self):
+        result = parser.parse_csv_line("a,a@email,engineering,engineer",[])
+        expected = {0: 'a', 1: 'a@email', 2: 'engineering', 3: 'engineer'}
+        self.assertEqual(expected,result)
+
     def test_parse_csv_line_no_header(self):
         result = parser.parse_csv_line("a,a@email,engineering,engineer")
         expected = {0: 'a', 1: 'a@email', 2: 'engineering', 3: 'engineer'}
         self.assertEqual(expected,result)
 
     def test_parse_csv_line_unequal_header_and_columns1(self):
-        json_path = "test.json"
         with patch("builtins.open", mock_open()) as mock_file:
             with self.assertRaises(ValueError):
                 parser.parse_csv_line("Alice Smith, AS@gmail.com", "name")
 
     def test_parse_csv_line_unequal_header_and_columns2(self):
-        json_path = "test.json"
         with patch("builtins.open", mock_open()) as mock_file:
             with self.assertRaises(ValueError):
                 parser.parse_csv_line("Alice Smith", "name, email, department")
-
 
 
 #-----------------------------------------------------------------

@@ -5,7 +5,7 @@ file_path2 = "sogne.csv"
 
 
 
-def my_split(line):
+def my_split(line, delimiter = ","):
     """
     Takes a string as input and splits it on the comma-delimiter.
     Handles commas inside quoted fields, quoted fields, quotes inside of quoted fields, 
@@ -22,7 +22,7 @@ def my_split(line):
     while i < len(line):
         if outer_quotations == False:
             if line[i] ==",": #normal comma separator (not in quoted field)
-                result_list.append(current_field.strip(",")) #remove comma and put it into result list
+                result_list.append(current_field.strip(delimiter)) #remove comma and put it into result list
                 current_field ="" #reset accumulator
             elif line[i] =='"':
                 outer_quotations=True
@@ -86,10 +86,8 @@ def parse_csv_line(CSV_line, header=None):
         One dictionary with the header as keys and row elements from the csv file as values
     """
     row_items = my_split(CSV_line.rstrip("\r\n")) #list of strings
-    header_keys = []
 
-
-    if header != None: #There is a header
+    if header != None and header != []: #There is a header and it is not empty
         header_keys = header #list of strings, e.g. ["name", "age","role"]
         dictionary = {} #empty dictionary
 
@@ -99,7 +97,7 @@ def parse_csv_line(CSV_line, header=None):
             for i in range(len(header_keys)):
                 dictionary[header_keys[i]] = row_items[i]
             return dictionary
-    else: #There is no header. Make keys: 0,1,2,...
+    else: #There is no header or there is an empty header. Make keys: 0,1,2,...
         dictionary = {} #empty dictionary
         for i in range(len(row_items)):
             dictionary[i] = row_items[i]

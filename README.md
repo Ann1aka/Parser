@@ -53,7 +53,7 @@ The project consists of five functions used in different stages from reading the
     write_json_file(file, encoding) calls parse_csv, producing a list of dictionaries. This is serialized to JSON-formatted strings in a .json file using json.dump, with ensure_ascii=False so special characters (æ, ø, å) are preserved rather than showing \uXXXX escapes. The output file is always written as UTF-8, regardless of which encoding the input CSV was read with.
 
 5. Encoding handling\
-    As it is hard to reliably guess a file's encoding, the encoding for the input csv file is explicitly given as a parameter (default is "utf-8") to read_file, parse_csv, and write_json_file. For some encodings, if it is incompatible with the file's bytes, a UnicodeDecodeError is raised (see test_read_file_æøå_ascii in test_parser.py). This is not the case for some other encodings such as EBCDIC.
+    As it is hard to reliably guess a file's encoding, the encoding for the input csv file can optionally be given as a parameter (default is "utf-8") to read_file, parse_csv, and write_json_file. For some encodings, if the encoding is incompatible with the file's bytes, a UnicodeDecodeError is raised (see test_read_file_æøå_ascii in test_parser.py). This is not the case for some other encodings such as EBCDIC.
 
 6. Error handling\
     In parse_header, a ValueError is raised if header keys are not unique as dictionaries cannot have duplicate keys (the values will get overwritten).
