@@ -3,7 +3,7 @@ import json
 file_path1 = "employees.csv"
 file_path2 = "sogne.csv"
 
-files =[file_path1, file_path2]
+
 
 def my_split(line):
     """
@@ -13,17 +13,16 @@ def my_split(line):
     Arg:
         line: a string corresponding to a row in a csv file
     Returns:
-        A string list of items, split on the comma-delimiter
+        A string list of fields, split on the comma-delimiter
     """
     outer_quotations = False
     result_list = []
     current_field ="" #accumulator
     i = 0
     while i < len(line):
-        print("1")
-        #current_field = current_field + line[i]
-        if outer_quotations == False: #and line[i]==",":
-            if line[i] ==",": #normal comma seperator (not in quoted field)
+
+        if outer_quotations == False:
+            if line[i] ==",": #normal comma separator (not in quoted field)
                 result_list.append(current_field.strip(",")) #remove comma and put it into result list
                 current_field ="" #reset accumulator
             elif line[i] =='"':
@@ -43,12 +42,26 @@ def my_split(line):
             else: #normal character
                 current_field = current_field+line[i]
         i=i+1
+    if outer_quotations == True: #if outer_quotations is still true after exiting the loop, we have unmatched quotationmarks
+       raise ValueError("Unterminated quoted field") 
     result_list.append(current_field)
     return result_list
 
+
+def read_file(file_path, encoding='utf-8'):
+    """
+    Function that opens a file and returns it as a decoded string
+    Arg:
+        file_path: file path to the file that is to be read
+        encoding: the text encoding to decode file with
+    """
+    with open (file_path, encoding = encoding) as f:
+        return f.read() 
+
+
 def parse_header(header_string):
     """
-    Function that parses one CSV-header and outputs an array of strings
+    Parses one CSV-header and outputs an array of strings
     Arg:
         header_string: A header which is a string
     Returns:
@@ -64,19 +77,19 @@ def parse_header(header_string):
 
 def parse_csv_line(CSV_line, header=None):
     """
-    Function that parses one line in the CSV file.
+    Parses one line in the CSV file.
     Args:
         CSV_line: a string which is a line in the CSV file
-        header: a string which is optionally
+        header: a string array which is optionally given
     Returns:
         One dictionary of JSON objects
     """
-    row_items = my_split(CSV_line.rstrip("\r\n")) #arrray of strings
+    row_items = my_split(CSV_line.rstrip("\r\n")) #array of strings
     header_keys = []
 
 
     if header != None: #There is a header
-        header_keys = header #array of stringss ["name", "age","role"]
+        header_keys = header #array of strings, e.g. ["name", "age","role"]
         json_objects = {} #empty dictionary
 
         if len(header_keys) != len(row_items):
@@ -85,47 +98,49 @@ def parse_csv_line(CSV_line, header=None):
             for i in range(len(header_keys)):
                 json_objects[header_keys[i]] = row_items[i]
             return json_objects
-    else: #There is no header. Make keys: 1,2,3,...
+    else: #There is no header. Make keys: 0,1,2,...
         json_objects = {} #empty dictionary
         for i in range(len(row_items)):
             json_objects[i] = row_items[i]
         return json_objects
 
 
-def parse_csv(file_path):
+def parse_csv(file_path, encoding="utf-8"):
     """
     Reads and parses the CSV file and returns a list of dictionaries
     Arg:
         file_path: a file path to a csv file that is to be read
+        encoding: the text encoding the csv file is written in
     Returns:
-        A list of dictionaries (array of arrays)
+        A list of dictionaries
     """
     array_of_dict = []
 
-    with open(file_path, encoding ="utf-8") as f:
-        #seperate header and the rest of the lines
-        first_line = parse_header(f.readline().strip("\r\n")) #read first line and parse it through parse_header 
+    lines = read_file(file_path, encoding).splitlines() #read lines in file and return a list of lines with no additional line breaks. Splits blindly on newlines
+    if lines == []: #check if string is empty
+        return array_of_dict
 
-        for lines in f.readlines():
-            if lines.strip("\r\n") == "":
-                continue
-            parsed =parse_csv_line(lines, first_line)
-            array_of_dict.append(parsed)
+    first_line = parse_header(lines[0]) #parse the header (first line)
+    for line in lines[1:]: #parse the rest of the lines
+        if line == "":
+            continue
+        parsed = parse_csv_line(line, first_line)
+        array_of_dict.append(parsed)
     return array_of_dict
         
 
 
-
-def write_json_file(file):
+def write_json_file(file, encoding = "utf-8"):
     """
     Calls parse_csv to create a list of dictionaries and converts this to json strings that it writes to a json path
     Arg:
         file: the file path of the file to be parsed. This is also used for for the json file to be written to
+        encoding: the text encoding the csv file is written in
     Returns:
-        A json file
+        The filepath to the written JSON file
     """
 
-    dict_array = parse_csv(file)
+    dict_array = parse_csv(file, encoding)
     json_path = file.replace(".csv", ".json")
     # Write the list of dictionaries to a json file with an array of json objects with indentation for readability
     with open(json_path, "w", encoding ="utf-8") as final:
@@ -133,12 +148,8 @@ def write_json_file(file):
         return json_path
 
 
-# if __name__ == "__main__": # pragma: no cover
-#     print(parse_header("employees.csv"))
-    #for file in files:
-    #    write_json_file(parse_csv(file), file.replace(".csv", ".json"))
-
-
+write_json_file(file_path1, encoding ="ascii")
+write_json_file(file_path2, encoding = "utf-8")
 
 
 
